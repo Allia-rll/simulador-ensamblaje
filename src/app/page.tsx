@@ -149,7 +149,10 @@ export default function Home() {
             errors.simulaciones?.message}
         </span>
       )}
-      <div className="w-full h-5/6 py-4 max-w-6xl justify-between font-mono text-lg lg:flex">
+      <div
+        className="w-full py-4 max-w-6xl justify-between font-mono text-lg lg:flex"
+        style={{ maxHeight: "84%" }}
+      >
         <Table data={data} />
       </div>
     </main>

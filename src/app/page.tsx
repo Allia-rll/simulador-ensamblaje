@@ -21,8 +21,14 @@ export default function Home() {
   } = useForm<Parameters>();
   const [data, setData] = useState<RowsType[]>([]);
   const onSubmit: SubmitHandler<Parameters> = async (data) => {
-    const res = await onGenerate(data);
-    setData(res);
+    const res = await fetch("/api/simulate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    }).then((res) => res.json());
+    setData(res.result);
   };
 
   return (
@@ -115,9 +121,7 @@ export default function Home() {
         </span>
       )}
       <div className="w-full h-5/6 py-4 max-w-6xl justify-between font-mono text-lg lg:flex">
-        <Suspense fallback={<div>Loading...</div>}>
           <Table data={data} />
-        </Suspense>
       </div>
     </main>
   );

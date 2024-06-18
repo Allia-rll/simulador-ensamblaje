@@ -2,10 +2,9 @@
 
 import Table from "./components/Table";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { onGenerate } from "./actions/onGenerate";
 import { useState } from "react";
 import { RowsType } from "./types/RowsType";
-import { Suspense } from "react";
+import { uni, erlang } from "./actions/generatos";
 
 type Parameters = {
   simulaciones: number;
@@ -21,14 +20,44 @@ export default function Home() {
   } = useForm<Parameters>();
   const [data, setData] = useState<RowsType[]>([]);
   const onSubmit: SubmitHandler<Parameters> = async (data) => {
-    const res = await fetch("/api/simulate", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    }).then((res) => res.json());
-    setData(res.result);
+    const { simulaciones, minCorrect, maxCorrect } = data;
+
+    let result: RowsType[] = [];
+    let cantErr = 0;
+
+    for (let i = 1; i <= simulaciones; i++) {
+      let data: RowsType;
+      const na1 = Math.random();
+      const barraA = uni.generate(na1);
+      const na2 = Math.random();
+      const na3 = Math.random();
+      const na4 = Math.random();
+      const na5 = Math.random();
+      const barraB = erlang.generate([na2, na3, na4, na5]);
+      const barraResult = barraA + barraB;
+      const estado =
+        barraResult >= minCorrect && barraResult <= maxCorrect
+          ? "Correcto"
+          : "Defectuoso";
+      if (estado === "Defectuoso") cantErr++;
+      const promM = (cantErr / i) * 100;
+      data = {
+        n: i,
+        na1,
+        barraA,
+        na2,
+        na3,
+        na4,
+        na5,
+        barraB,
+        barraResult,
+        estado,
+        cantErr,
+        promM,
+      };
+      result.push(data);
+    }
+    setData(result);
   };
 
   return (
@@ -121,7 +150,7 @@ export default function Home() {
         </span>
       )}
       <div className="w-full h-5/6 py-4 max-w-6xl justify-between font-mono text-lg lg:flex">
-          <Table data={data} />
+        <Table data={data} />
       </div>
     </main>
   );
